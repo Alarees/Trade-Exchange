@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Top website nav link so visitors can actually find the board -->
+    <record id="website_menu_exchange" model="website.menu">
+        <field name="name">بورصة المحاصيل</field>
+        <field name="url">/exchange</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence">40</field>
+    </record>
+
     <!-- ===================== Public exchange board ===================== -->
     <template id="exchange_board_template" name="Crop Exchange Board">
         <t t-call="website.layout">
