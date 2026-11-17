@@ -72,7 +72,6 @@ class CropProvider(models.Model):
                     {
                         "name": rec.name,
                         "phone": rec.phone,
-                        "mobile": rec.whatsapp,
                         "email": rec.email,
                         "is_company": rec.entity_type == "company",
                     }
