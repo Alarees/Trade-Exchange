@@ -28,7 +28,7 @@ Flow:
     "depends": ["base", "mail", "website", "portal"],
     "data": [
         "security/crop_exchange_security.xml",
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "data/crop_exchange_data.xml",
         "views/crop_provider_views.xml",
         "views/crop_product_views.xml",

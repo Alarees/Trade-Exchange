@@ -1,0 +1,11 @@
+id,name,model_id,group_id/id,operation,domain
+access_crop_product_admin,crop.product admin full access,crop.product,group_crop_admin,crud,
+access_crop_product_provider,crop.product provider read,crop.product,group_crop_provider,r,
+access_crop_product_public,crop.product public read,crop.product,base.group_public,r,
+access_crop_provider_admin,crop.provider admin full access,crop.provider,group_crop_admin,crud,
+access_crop_provider_provider_self,crop.provider provider own profile,crop.provider,group_crop_provider,ru,"[('user_id', '=', user.id)]"
+access_crop_listing_admin,crop.listing admin full access,crop.listing,group_crop_admin,crud,
+access_crop_listing_provider_own,crop.listing provider own listings,crop.listing,group_crop_provider,crud,"[('provider_id.user_id', '=', user.id)]"
+access_crop_listing_public,crop.listing public read,crop.listing,base.group_public,r,"[('state', '=', 'available')]"
+access_crop_interest_admin,crop.interest admin full access,crop.interest,group_crop_admin,crud,
+access_crop_interest_provider_own,crop.interest provider read own,crop.interest,group_crop_provider,r,"[('listing_id.provider_id.user_id', '=', user.id)]"

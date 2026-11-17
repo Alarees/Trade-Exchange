@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="module_category_crop_exchange" model="ir.module.category">
-        <field name="name">Crop Exchange</field>
-        <field name="sequence">20</field>
-    </record>
-
+    <!-- Odoo 20 removed res.groups.category_id and the ir.rule model entirely:
+         record-level filtering now lives in security/ir.access.csv (the unified
+         ir.access model). Only the two groups are defined here. -->
     <record id="group_crop_admin" model="res.groups">
         <field name="name">Exchange Administrator</field>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
@@ -13,49 +11,5 @@
     <record id="group_crop_provider" model="res.groups">
         <field name="name">Exchange Provider (Trader/Exporter)</field>
         <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
-    </record>
-
-    <!-- Providers may only see/edit their own listings -->
-    <record id="crop_listing_provider_own_rule" model="ir.rule">
-        <field name="name">Provider: only own listings</field>
-        <field name="model_id" ref="model_crop_listing"/>
-        <field name="domain_force">[('provider_id.user_id', '=', user.id)]</field>
-        <field name="groups" eval="[(4, ref('group_crop_provider'))]"/>
-    </record>
-
-    <record id="crop_interest_provider_own_rule" model="ir.rule">
-        <field name="name">Provider: interest requests on own listings (read-only)</field>
-        <field name="model_id" ref="model_crop_interest"/>
-        <field name="domain_force">[('listing_id.provider_id.user_id', '=', user.id)]</field>
-        <field name="groups" eval="[(4, ref('group_crop_provider'))]"/>
-    </record>
-
-    <!-- Admins see everything -->
-    <record id="crop_listing_admin_rule" model="ir.rule">
-        <field name="name">Admin: all listings</field>
-        <field name="model_id" ref="model_crop_listing"/>
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[(4, ref('group_crop_admin'))]"/>
-    </record>
-
-    <record id="crop_interest_admin_rule" model="ir.rule">
-        <field name="name">Admin: all interest requests</field>
-        <field name="model_id" ref="model_crop_interest"/>
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[(4, ref('group_crop_admin'))]"/>
-    </record>
-
-    <record id="crop_provider_admin_rule" model="ir.rule">
-        <field name="name">Admin: all providers</field>
-        <field name="model_id" ref="model_crop_provider"/>
-        <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[(4, ref('group_crop_admin'))]"/>
-    </record>
-
-    <record id="crop_provider_self_rule" model="ir.rule">
-        <field name="name">Provider: own profile only</field>
-        <field name="model_id" ref="model_crop_provider"/>
-        <field name="domain_force">[('user_id', '=', user.id)]</field>
-        <field name="groups" eval="[(4, ref('group_crop_provider'))]"/>
     </record>
 </odoo>
