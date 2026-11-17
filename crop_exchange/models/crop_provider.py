@@ -88,12 +88,12 @@ class CropProvider(models.Model):
                         "login": rec.email,
                         "email": rec.email,
                         "partner_id": rec.partner_id.id,
-                        "groups_id": [(4, group_provider.id)],
+                        "group_ids": [(4, group_provider.id)],
                     }
                 )
                 rec.user_id = user.id
             else:
-                rec.user_id.groups_id = [(4, group_provider.id)]
+                rec.user_id.group_ids = [(4, group_provider.id)]
             rec.state = "approved"
             rec.message_post(body="Provider approved and portal access granted.")
 
