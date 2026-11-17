@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_crop_product_list" model="ir.ui.view">
+        <field name="name">crop.product.list</field>
+        <field name="model">crop.product</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="default_uom"/>
+                <field name="listing_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_crop_product_form" model="ir.ui.view">
+        <field name="name">crop.product.form</field>
+        <field name="model">crop.product</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="image_1920" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <field name="category"/>
+                        <field name="default_uom"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_crop_product" model="ir.actions.act_window">
+        <field name="name">Crop Master List</field>
+        <field name="res_model">crop.product</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add the crops that may be listed on the exchange.</p>
+        </field>
+    </record>
+</odoo>

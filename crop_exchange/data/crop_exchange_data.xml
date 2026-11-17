@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="crop_sesame" model="crop.product">
+        <field name="name">Sesame / السمسم</field>
+        <field name="category">oilseed</field>
+        <field name="default_uom">ton</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="crop_sorghum" model="crop.product">
+        <field name="name">Sorghum / الذرة الرفيعة</field>
+        <field name="category">cereal</field>
+        <field name="default_uom">ton</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="crop_groundnut" model="crop.product">
+        <field name="name">Groundnut / الفول السوداني</field>
+        <field name="category">legume</field>
+        <field name="default_uom">ton</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="crop_gum_arabic" model="crop.product">
+        <field name="name">Gum Arabic / الصمغ العربي</field>
+        <field name="category">other</field>
+        <field name="default_uom">sack50</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="ir_cron_expire_listings" model="ir.cron">
+        <field name="name">Crop Exchange: Expire outdated listings</field>
+        <field name="model_id" ref="model_crop_listing"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_expire_listings()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

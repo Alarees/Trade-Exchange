@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_crop_exchange_root" name="Crop Exchange" sequence="30" groups="crop_exchange.group_crop_admin,crop_exchange.group_crop_provider"/>
+
+    <menuitem id="menu_crop_listing" name="Listings" parent="menu_crop_exchange_root" action="action_crop_listing" sequence="10"/>
+    <menuitem id="menu_crop_interest" name="Interest Requests" parent="menu_crop_exchange_root" action="action_crop_interest" sequence="20" groups="crop_exchange.group_crop_admin"/>
+
+    <menuitem id="menu_crop_exchange_admin" name="Administration" parent="menu_crop_exchange_root" sequence="90" groups="crop_exchange.group_crop_admin"/>
+    <menuitem id="menu_crop_provider" name="Providers" parent="menu_crop_exchange_admin" action="action_crop_provider" sequence="10"/>
+    <menuitem id="menu_crop_product" name="Crop Master List" parent="menu_crop_exchange_admin" action="action_crop_product" sequence="20"/>
+</odoo>

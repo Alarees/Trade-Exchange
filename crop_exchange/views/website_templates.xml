@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Public exchange board ===================== -->
+    <template id="exchange_board_template" name="Crop Exchange Board">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-4" dir="rtl">
+                <h1 class="mb-4">بورصة المحاصيل</h1>
+
+                <form class="row g-2 mb-4" method="get" t-att-action="'/exchange'">
+                    <div class="col-md-4">
+                        <select name="crop_id" class="form-select">
+                            <option value="">كل المحاصيل</option>
+                            <t t-foreach="crops" t-as="crop">
+                                <option t-att-value="crop.id" t-att-selected="crop.id == selected_crop_id">
+                                    <t t-esc="crop.name"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="state_province" class="form-control" placeholder="الولاية" t-att-value="selected_state"/>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">تصفية</button>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/exchange/register" class="btn btn-outline-primary w-100">سجّل كتاجر/مصدّر</a>
+                    </div>
+                </form>
+
+                <div class="row">
+                    <t t-foreach="listings" t-as="listing">
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><t t-esc="listing.crop_id.name"/></h5>
+                                    <p class="card-text mb-1">
+                                        الكمية: <t t-esc="listing.quantity"/> <t t-esc="listing.uom"/>
+                                    </p>
+                                    <p class="card-text mb-1">
+                                        السعر: <t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/>
+                                    </p>
+                                    <p class="card-text mb-1">الولاية: <t t-esc="listing.state_province"/></p>
+                                    <a t-att-href="'/exchange/listing/%s' % listing.id" class="btn btn-sm btn-primary mt-2">تفاصيل / أبدِ اهتمامك</a>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <div t-if="not listings" class="col-12">
+                        <p class="text-muted">لا توجد عروض متاحة حالياً حسب هذه الفلترة.</p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===================== Listing detail + interest form ===================== -->
+    <template id="exchange_listing_detail_template" name="Crop Listing Detail">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-4" dir="rtl">
+                <a href="/exchange" class="btn btn-link mb-3">&#8592; رجوع للبورصة</a>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h2><t t-esc="listing.crop_id.name"/></h2>
+                        <ul class="list-unstyled">
+                            <li>الكمية: <t t-esc="listing.quantity"/> <t t-esc="listing.uom"/></li>
+                            <li>السعر: <t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/> لكل وحدة</li>
+                            <li t-if="listing.quality_grade">الجودة: <t t-esc="listing.quality_grade"/></li>
+                            <li>الولاية: <t t-esc="listing.state_province"/></li>
+                            <li t-if="listing.valid_until">العرض ساري حتى: <t t-esc="listing.valid_until"/></li>
+                        </ul>
+                        <p class="text-muted small">
+                            ملاحظة: بيانات التاجر غير معروضة مباشرة. أرسل طلب اهتمام وستتولى إدارة المنصة التواصل وربطكما.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">أبدِ اهتمامك بهذا العرض</h5>
+                                <p t-if="error" class="text-danger" t-esc="error"/>
+                                <form t-att-action="'/exchange/listing/%s/interest' % listing.id" method="post">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="mb-2">
+                                        <label class="form-label">الاسم</label>
+                                        <input type="text" name="buyer_name" class="form-control" required="1"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">رقم الهاتف / واتساب</label>
+                                        <input type="text" name="buyer_phone" class="form-control" required="1"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">البريد الإلكتروني (اختياري)</label>
+                                        <input type="email" name="buyer_email" class="form-control"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">رسالتك</label>
+                                        <textarea name="message" class="form-control" rows="3"/>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">إرسال طلب الاهتمام</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="exchange_interest_thankyou_template" name="Interest Request Thank You">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-5 text-center" dir="rtl">
+                <h2>تم إرسال طلبك بنجاح</h2>
+                <p class="text-muted">ستتواصل معك إدارة المنصة قريباً لربطك بالتاجر.</p>
+                <a href="/exchange" class="btn btn-primary">العودة إلى البورصة</a>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===================== Provider self-registration ===================== -->
+    <template id="provider_register_template" name="Provider Registration">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-4" dir="rtl" style="max-width: 640px;">
+                <h2 class="mb-3">تسجيل كتاجر / مصدّر</h2>
+                <p t-if="error" class="text-danger" t-esc="error"/>
+                <form action="/exchange/register/submit" method="post">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="mb-2">
+                        <label class="form-label">اسم العمل / الشركة</label>
+                        <input type="text" name="name" class="form-control" required="1"/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">نوع الكيان</label>
+                        <select name="entity_type" class="form-select">
+                            <option value="company">شركة مسجلة</option>
+                            <option value="trade_name">اسم تجاري</option>
+                            <option value="freelancer">فريلانسر</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">اسم الشخص المسؤول</label>
+                        <input type="text" name="contact_name" class="form-control"/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">الهاتف</label>
+                        <input type="text" name="phone" class="form-control" required="1"/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">واتساب</label>
+                        <input type="text" name="whatsapp" class="form-control"/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">البريد الإلكتروني</label>
+                        <input type="email" name="email" class="form-control"/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">الولاية</label>
+                        <input type="text" name="state_province" class="form-control" required="1"/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">سنوات الخبرة</label>
+                        <input type="number" name="years_experience" class="form-control"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ملاحظات إضافية</label>
+                        <textarea name="notes" class="form-control" rows="3"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">إرسال طلب التسجيل</button>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="provider_register_thankyou_template" name="Provider Registration Thank You">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-5 text-center" dir="rtl">
+                <h2>تم استلام طلب تسجيلك</h2>
+                <p class="text-muted">سيتم مراجعة طلبك من قبل إدارة المنصة والتواصل معك بعد الاعتماد.</p>
+                <a href="/exchange" class="btn btn-primary">العودة إلى البورصة</a>
+            </div>
+        </t>
+    </template>
+
+</odoo>

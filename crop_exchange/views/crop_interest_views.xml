@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_crop_interest_list" model="ir.ui.view">
+        <field name="name">crop.interest.list</field>
+        <field name="model">crop.interest</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state=='linked'" decoration-muted="state=='rejected'" decoration-info="state=='new'">
+                <field name="buyer_name"/>
+                <field name="buyer_phone"/>
+                <field name="listing_id"/>
+                <field name="provider_id"/>
+                <field name="create_date"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_crop_interest_form" model="ir.ui.view">
+        <field name="name">crop.interest.form</field>
+        <field name="model">crop.interest</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start_processing" string="Start Processing" type="object" invisible="state != 'new'"/>
+                    <button name="action_mark_linked" string="Mark Linked" type="object" class="btn-primary" invisible="state == 'linked'"/>
+                    <button name="action_reject" string="Reject" type="object" invisible="state == 'rejected'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Buyer">
+                            <field name="buyer_name"/>
+                            <field name="buyer_phone"/>
+                            <field name="buyer_email"/>
+                        </group>
+                        <group string="Listing / Provider">
+                            <field name="listing_id"/>
+                            <field name="provider_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="message" placeholder="Buyer's message..."/>
+                        <field name="admin_notes" placeholder="Internal notes: what was communicated, agreed terms, etc."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_crop_interest_search" model="ir.ui.view">
+        <field name="name">crop.interest.search</field>
+        <field name="model">crop.interest</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="buyer_name"/>
+                <field name="buyer_phone"/>
+                <field name="listing_id"/>
+                <filter string="New" name="new" domain="[('state','=','new')]"/>
+                <filter string="Processing" name="processing" domain="[('state','=','processing')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_crop_interest" model="ir.actions.act_window">
+        <field name="name">Interest Requests</field>
+        <field name="res_model">crop.interest</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_new': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No buyer interest requests yet.</p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crop_product_admin,crop.product.admin,model_crop_product,group_crop_admin,1,1,1,1
+access_crop_product_provider,crop.product.provider,model_crop_product,group_crop_provider,1,0,0,0
+access_crop_product_public,crop.product.public,model_crop_product,base.group_public,1,0,0,0
+
+access_crop_provider_admin,crop.provider.admin,model_crop_provider,group_crop_admin,1,1,1,1
+access_crop_provider_provider,crop.provider.provider,model_crop_provider,group_crop_provider,1,1,0,0
+access_crop_listing_admin,crop.listing.admin,model_crop_listing,group_crop_admin,1,1,1,1
+access_crop_listing_provider,crop.listing.provider,model_crop_listing,group_crop_provider,1,1,1,1
+access_crop_listing_public,crop.listing.public,model_crop_listing,base.group_public,1,0,0,0
+
+access_crop_interest_admin,crop.interest.admin,model_crop_interest,group_crop_admin,1,1,1,1
+access_crop_interest_provider,crop.interest.provider,model_crop_interest,group_crop_provider,1,0,0,0
