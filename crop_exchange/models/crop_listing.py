@@ -49,11 +49,15 @@ class CropListing(models.Model):
 
     @api.depends("crop_id", "quantity", "uom", "provider_id")
     def _compute_name(self):
+        # 'uom' is a related field (crop_id.default_uom); its own selection
+        # resolves dynamically (a callable), so read the static label list
+        # from the real field on crop.product instead.
+        uom_labels = dict(self.env["crop.product"]._fields["default_uom"].selection)
         for rec in self:
             rec.name = "%s - %s %s (%s)" % (
                 rec.crop_id.name or "?",
                 rec.quantity,
-                dict(rec._fields["uom"].selection).get(rec.uom, ""),
+                uom_labels.get(rec.uom, ""),
                 rec.provider_id.name or "?",
             )
 
