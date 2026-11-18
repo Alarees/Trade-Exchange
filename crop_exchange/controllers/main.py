@@ -17,7 +17,9 @@ class CropExchangeController(http.Controller):
     @http.route(["/exchange"], type="http", auth="public", website=True, sitemap=True)
     def exchange_board(self, **kw):
         Listing = request.env["crop.listing"].sudo()
-        listings = Listing.search([("state", "=", "available")])
+        listings = Listing.search(
+            [("state", "=", "available"), ("crop_id", "!=", False)]
+        )
 
         totals = defaultdict(lambda: {"crop": False, "sum": 0.0, "count": 0})
         for listing in listings:
