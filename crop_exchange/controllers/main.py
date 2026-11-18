@@ -17,8 +17,8 @@ class CropExchangeController(http.Controller):
         Listing = request.env["crop.listing"].sudo()
         grouped = Listing.read_group(
             [("state", "=", "available")],
-            ["price_per_unit:avg", "__count"],
             ["crop_id"],
+            ["price_per_unit:avg", "__count"],
         )
         board_rows = []
         for g in grouped:
