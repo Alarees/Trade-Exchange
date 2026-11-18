@@ -46,7 +46,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <t t-out="'%.2f' % row.avg_price"/>
+                                    <t t-out="row.avg_price_text"/>
                                     <t t-out="row.crop.default_uom"/>
                                 </td>
                                 <td><span class="badge bg-secondary"><t t-out="row.offer_count"/></span></td>
@@ -84,7 +84,7 @@
                         <t t-foreach="listings" t-as="listing">
                             <tr>
                                 <td><t t-out="listing.provider_id.name"/></td>
-                                <td><t t-out="listing.price_per_unit"/> <t t-out="listing.currency_id.symbol"/> / <t t-out="listing.uom"/></td>
+                                <td><span t-field="listing.price_per_unit" t-options='{"widget": "monetary", "display_currency": listing.currency_id}'/> / <t t-out="listing.uom"/></td>
                                 <td><t t-out="listing.quantity"/></td>
                                 <td><t t-out="listing.quality_grade or '-'"/></td>
                                 <td><t t-out="listing.state_province.name or '-'"/></td>
@@ -110,7 +110,7 @@
                         <h2><t t-out="listing.crop_id.name"/> — <t t-out="listing.provider_id.name"/></h2>
                         <ul class="list-unstyled">
                             <li>الكمية: <t t-out="listing.quantity"/> <t t-out="listing.uom"/></li>
-                            <li>السعر: <t t-out="listing.price_per_unit"/> <t t-out="listing.currency_id.symbol"/> لكل وحدة</li>
+                            <li>السعر: <span t-field="listing.price_per_unit" t-options='{"widget": "monetary", "display_currency": listing.currency_id}'/> لكل وحدة</li>
                             <li t-if="listing.quality_grade">الجودة: <t t-out="listing.quality_grade"/></li>
                             <li>الولاية: <t t-out="listing.state_province.name"/></li>
                             <li t-if="listing.valid_until">العرض ساري حتى: <t t-out="listing.valid_until"/></li>
@@ -208,7 +208,7 @@
                         <t t-foreach="listings" t-as="listing">
                             <tr>
                                 <td><t t-out="listing.crop_id.name"/></td>
-                                <td><t t-out="listing.price_per_unit"/> <t t-out="listing.currency_id.symbol"/> / <t t-out="listing.uom"/></td>
+                                <td><span t-field="listing.price_per_unit" t-options='{"widget": "monetary", "display_currency": listing.currency_id}'/> / <t t-out="listing.uom"/></td>
                                 <td><t t-out="listing.quantity"/></td>
                                 <td><t t-out="listing.quality_grade or '-'"/></td>
                                 <td><t t-out="listing.state_province.name or '-'"/></td>

@@ -33,6 +33,7 @@ class CropExchangeController(http.Controller):
             SimpleNamespace(
                 crop=data["crop"],
                 avg_price=data["sum"] / data["count"],
+                avg_price_text="{:,.2f}".format(data["sum"] / data["count"]),
                 offer_count=data["count"],
             )
             for data in totals.values()
