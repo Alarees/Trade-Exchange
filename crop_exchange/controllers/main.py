@@ -11,29 +11,50 @@ class CropExchangeController(http.Controller):
     controller, not via open model ACLs.
     """
 
-    # ---------- Public exchange board ----------
-    @http.route(["/exchange", "/exchange/page/<int:page>"], type="http", auth="public", website=True, sitemap=True)
-    def exchange_board(self, page=1, crop_id=None, state_province=None, **kw):
+    # ---------- Public exchange board: one row per crop, averaged ----------
+    @http.route(["/exchange"], type="http", auth="public", website=True, sitemap=True)
+    def exchange_board(self, **kw):
         Listing = request.env["crop.listing"].sudo()
-        domain = [("state", "=", "available")]
-        if crop_id:
-            domain.append(("crop_id", "=", int(crop_id)))
-        if state_province:
-            domain.append(("state_province", "ilike", state_province))
-
-        listings = Listing.search(domain, order="create_date desc")
-        crops = request.env["crop.product"].sudo().search([])
+        grouped = Listing.read_group(
+            [("state", "=", "available")],
+            ["price_per_unit:avg", "__count"],
+            ["crop_id"],
+        )
+        board_rows = []
+        for g in grouped:
+            crop = request.env["crop.product"].sudo().browse(g["crop_id"][0]) if g["crop_id"] else False
+            if not crop:
+                continue
+            board_rows.append(
+                {
+                    "crop": crop,
+                    "avg_price": g["price_per_unit"],
+                    "offer_count": g["__count"],
+                }
+            )
+        board_rows.sort(key=lambda r: r["crop"].name or "")
 
         return request.render(
             "crop_exchange.exchange_board_template",
-            {
-                "listings": listings,
-                "crops": crops,
-                "selected_crop_id": int(crop_id) if crop_id else None,
-                "selected_state": state_province or "",
-            },
+            {"board_rows": board_rows},
         )
 
+    # ---------- Crop detail: every provider's price for this crop ----------
+    @http.route(["/exchange/crop/<int:crop_id>"], type="http", auth="public", website=True)
+    def exchange_crop_detail(self, crop_id, **kw):
+        crop = request.env["crop.product"].sudo().browse(crop_id)
+        if not crop.exists():
+            return request.not_found()
+        listings = request.env["crop.listing"].sudo().search(
+            [("crop_id", "=", crop_id), ("state", "=", "available")],
+            order="price_per_unit asc",
+        )
+        return request.render(
+            "crop_exchange.exchange_crop_detail_template",
+            {"crop": crop, "listings": listings},
+        )
+
+    # ---------- Single listing detail + interest form ----------
     @http.route(["/exchange/listing/<int:listing_id>"], type="http", auth="public", website=True)
     def exchange_listing_detail(self, listing_id, **kw):
         listing = request.env["crop.listing"].sudo().browse(listing_id)

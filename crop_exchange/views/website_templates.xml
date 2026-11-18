@@ -9,56 +9,83 @@
         <field name="sequence">40</field>
     </record>
 
-    <!-- ===================== Public exchange board ===================== -->
+    <!-- ===================== Public exchange board (stock-exchange style table) ===================== -->
     <template id="exchange_board_template" name="Crop Exchange Board">
         <t t-call="website.layout">
             <div id="wrap" class="container py-4" dir="rtl">
-                <h1 class="mb-4">بورصة المحاصيل</h1>
-
-                <form class="row g-2 mb-4" method="get" t-att-action="'/exchange'">
-                    <div class="col-md-4">
-                        <select name="crop_id" class="form-select">
-                            <option value="">كل المحاصيل</option>
-                            <t t-foreach="crops" t-as="crop">
-                                <option t-att-value="crop.id" t-att-selected="crop.id == selected_crop_id">
-                                    <t t-esc="crop.name"/>
-                                </option>
-                            </t>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" name="state_province" class="form-control" placeholder="الولاية" t-att-value="selected_state"/>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">تصفية</button>
-                    </div>
-                    <div class="col-md-2">
-                        <a href="/exchange/register" class="btn btn-outline-primary w-100">سجّل كتاجر/مصدّر</a>
-                    </div>
-                </form>
-
-                <div class="row">
-                    <t t-foreach="listings" t-as="listing">
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title"><t t-esc="listing.crop_id.name"/></h5>
-                                    <p class="card-text mb-1">
-                                        الكمية: <t t-esc="listing.quantity"/> <t t-esc="listing.uom"/>
-                                    </p>
-                                    <p class="card-text mb-1">
-                                        السعر: <t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/>
-                                    </p>
-                                    <p class="card-text mb-1">الولاية: <t t-esc="listing.state_province"/></p>
-                                    <a t-att-href="'/exchange/listing/%s' % listing.id" class="btn btn-sm btn-primary mt-2">تفاصيل / أبدِ اهتمامك</a>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-                    <div t-if="not listings" class="col-12">
-                        <p class="text-muted">لا توجد عروض متاحة حالياً حسب هذه الفلترة.</p>
-                    </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="mb-0">بورصة المحاصيل</h1>
+                    <a href="/exchange/register" class="btn btn-outline-primary">سجّل كتاجر/مصدّر</a>
                 </div>
+
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>المحصول</th>
+                            <th>متوسط السعر</th>
+                            <th>عدد العروض</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="board_rows" t-as="row">
+                            <tr>
+                                <td>
+                                    <a t-att-href="'/exchange/crop/%s' % row['crop'].id" class="fw-bold text-decoration-none">
+                                        <t t-esc="row['crop'].name"/>
+                                    </a>
+                                </td>
+                                <td>
+                                    <t t-esc="'%.2f' % row['avg_price']"/>
+                                    <t t-esc="row['crop'].default_uom"/>
+                                </td>
+                                <td><span class="badge bg-secondary"><t t-esc="row['offer_count']"/></span></td>
+                                <td>
+                                    <a t-att-href="'/exchange/crop/%s' % row['crop'].id" class="btn btn-sm btn-primary">عرض التجار والأسعار</a>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <p t-if="not board_rows" class="text-muted">لا توجد عروض متاحة حالياً بالبورصة.</p>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===================== Per-crop detail: every provider's price ===================== -->
+    <template id="exchange_crop_detail_template" name="Crop Exchange - Crop Detail">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-4" dir="rtl">
+                <a href="/exchange" class="btn btn-link mb-3">&#8592; رجوع لبورصة المحاصيل</a>
+                <h2 class="mb-4"><t t-esc="crop.name"/> — عروض التجار والمصدّرين</h2>
+
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>التاجر / المصدّر</th>
+                            <th>السعر</th>
+                            <th>الكمية</th>
+                            <th>الجودة</th>
+                            <th>الولاية</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="listings" t-as="listing">
+                            <tr>
+                                <td><t t-esc="listing.provider_id.name"/></td>
+                                <td><t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/> / <t t-esc="listing.uom"/></td>
+                                <td><t t-esc="listing.quantity"/></td>
+                                <td><t t-esc="listing.quality_grade or '-'"/></td>
+                                <td><t t-esc="listing.state_province.name or '-'"/></td>
+                                <td>
+                                    <a t-att-href="'/exchange/listing/%s' % listing.id" class="btn btn-sm btn-primary">أبدِ اهتمامك</a>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <p t-if="not listings" class="text-muted">لا توجد عروض متاحة حالياً لهذا المحصول.</p>
             </div>
         </t>
     </template>
@@ -67,19 +94,19 @@
     <template id="exchange_listing_detail_template" name="Crop Listing Detail">
         <t t-call="website.layout">
             <div id="wrap" class="container py-4" dir="rtl">
-                <a href="/exchange" class="btn btn-link mb-3">&#8592; رجوع للبورصة</a>
+                <a t-att-href="'/exchange/crop/%s' % listing.crop_id.id" class="btn btn-link mb-3">&#8592; رجوع لعروض <t t-esc="listing.crop_id.name"/></a>
                 <div class="row">
                     <div class="col-md-6">
-                        <h2><t t-esc="listing.crop_id.name"/></h2>
+                        <h2><t t-esc="listing.crop_id.name"/> — <t t-esc="listing.provider_id.name"/></h2>
                         <ul class="list-unstyled">
                             <li>الكمية: <t t-esc="listing.quantity"/> <t t-esc="listing.uom"/></li>
                             <li>السعر: <t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/> لكل وحدة</li>
                             <li t-if="listing.quality_grade">الجودة: <t t-esc="listing.quality_grade"/></li>
-                            <li>الولاية: <t t-esc="listing.state_province"/></li>
+                            <li>الولاية: <t t-esc="listing.state_province.name"/></li>
                             <li t-if="listing.valid_until">العرض ساري حتى: <t t-esc="listing.valid_until"/></li>
                         </ul>
                         <p class="text-muted small">
-                            ملاحظة: بيانات التاجر غير معروضة مباشرة. أرسل طلب اهتمام وستتولى إدارة المنصة التواصل وربطكما.
+                            ملاحظة: بيانات تواصل التاجر غير معروضة مباشرة. أرسل طلب اهتمام وستتولى إدارة المنصة التواصل وربطكما.
                         </p>
                     </div>
                     <div class="col-md-6">

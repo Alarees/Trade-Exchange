@@ -55,6 +55,22 @@
                         <field name="notes" placeholder="Additional notes..."/>
                         <field name="rejection_reason" invisible="state != 'rejected'"/>
                     </group>
+                    <notebook>
+                        <page string="Crops &amp; Prices" name="listings">
+                            <field name="listing_ids">
+                                <list editable="bottom">
+                                    <field name="crop_id"/>
+                                    <field name="price_per_unit"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="uom"/>
+                                    <field name="quantity"/>
+                                    <field name="quality_grade"/>
+                                    <field name="state_province"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>

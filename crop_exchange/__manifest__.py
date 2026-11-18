@@ -37,11 +37,6 @@ Flow:
         "views/website_templates.xml",
         "views/menus.xml",
     ],
-    "assets": {
-        "web.assets_frontend": [
-            "crop_exchange/static/src/js/board_filters.js",
-        ],
-    },
     "installable": True,
     "application": True,
 }

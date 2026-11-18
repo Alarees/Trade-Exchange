@@ -23,14 +23,19 @@ class CropListing(models.Model):
         ondelete="cascade",
     )
     crop_id = fields.Many2one("crop.product", string="Crop", required=True, tracking=True)
-    quantity = fields.Float(required=True)
+    quantity = fields.Float(default=1.0)
     uom = fields.Selection(related="crop_id.default_uom", store=True, readonly=False)
     price_per_unit = fields.Monetary(required=True, tracking=True)
     currency_id = fields.Many2one(
         "res.currency", default=lambda self: self.env.ref("base.SDG", raise_if_not_found=False)
     )
     quality_grade = fields.Char("Quality / Specification")
-    state_province = fields.Char("Wilaya / State", required=True)
+    state_province = fields.Many2one(
+        "res.country.state",
+        string="Wilaya / State",
+        required=True,
+        domain="[('country_id.code', '=', 'SD')]",
+    )
     valid_until = fields.Date("Valid Until")
 
     state = fields.Selection(
