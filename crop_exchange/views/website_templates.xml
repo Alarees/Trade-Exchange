@@ -41,17 +41,17 @@
                         <t t-foreach="board_rows" t-as="row">
                             <tr>
                                 <td>
-                                    <a t-att-href="'/exchange/crop/%s' % row['crop'].id" class="fw-bold text-decoration-none">
-                                        <t t-esc="row['crop'].name"/>
+                                    <a t-att-href="'/exchange/crop/%s' % row.crop.id" class="fw-bold text-decoration-none">
+                                        <t t-esc="row.crop.name"/>
                                     </a>
                                 </td>
                                 <td>
-                                    <t t-esc="'%.2f' % row['avg_price']"/>
-                                    <t t-esc="row['crop'].default_uom"/>
+                                    <t t-esc="'%.2f' % row.avg_price"/>
+                                    <t t-esc="row.crop.default_uom"/>
                                 </td>
-                                <td><span class="badge bg-secondary"><t t-esc="row['offer_count']"/></span></td>
+                                <td><span class="badge bg-secondary"><t t-esc="row.offer_count"/></span></td>
                                 <td>
-                                    <a t-att-href="'/exchange/crop/%s' % row['crop'].id" class="btn btn-sm btn-primary">عرض التجار والأسعار</a>
+                                    <a t-att-href="'/exchange/crop/%s' % row.crop.id" class="btn btn-sm btn-primary">عرض التجار والأسعار</a>
                                 </td>
                             </tr>
                         </t>

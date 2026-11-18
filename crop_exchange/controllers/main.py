@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
+from types import SimpleNamespace
 
 from odoo import http
 from odoo.http import request
@@ -29,15 +30,15 @@ class CropExchangeController(http.Controller):
             bucket["count"] += 1
 
         board_rows = [
-            {
-                "crop": data["crop"],
-                "avg_price": data["sum"] / data["count"],
-                "offer_count": data["count"],
-            }
+            SimpleNamespace(
+                crop=data["crop"],
+                avg_price=data["sum"] / data["count"],
+                offer_count=data["count"],
+            )
             for data in totals.values()
             if data["count"]
         ]
-        board_rows.sort(key=lambda r: r["crop"].name or "")
+        board_rows.sort(key=lambda r: r.crop.name or "")
 
         return request.render(
             "crop_exchange.exchange_board_template",
