@@ -42,14 +42,14 @@
                             <tr>
                                 <td>
                                     <a t-att-href="'/exchange/crop/%s' % row.crop.id" class="fw-bold text-decoration-none">
-                                        <t t-esc="row.crop.name"/>
+                                        <t t-out="row.crop.name"/>
                                     </a>
                                 </td>
                                 <td>
-                                    <t t-esc="'%.2f' % row.avg_price"/>
-                                    <t t-esc="row.crop.default_uom"/>
+                                    <t t-out="'%.2f' % row.avg_price"/>
+                                    <t t-out="row.crop.default_uom"/>
                                 </td>
-                                <td><span class="badge bg-secondary"><t t-esc="row.offer_count"/></span></td>
+                                <td><span class="badge bg-secondary"><t t-out="row.offer_count"/></span></td>
                                 <td>
                                     <a t-att-href="'/exchange/crop/%s' % row.crop.id" class="btn btn-sm btn-primary">عرض التجار والأسعار</a>
                                 </td>
@@ -67,7 +67,7 @@
         <t t-call="website.layout">
             <div id="wrap" class="container py-4" dir="rtl">
                 <a href="/exchange" class="btn btn-link mb-3">&#8592; رجوع لبورصة المحاصيل</a>
-                <h2 class="mb-4"><t t-esc="crop.name"/> — عروض التجار والمصدّرين</h2>
+                <h2 class="mb-4"><t t-out="crop.name"/> — عروض التجار والمصدّرين</h2>
 
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
@@ -83,11 +83,11 @@
                     <tbody>
                         <t t-foreach="listings" t-as="listing">
                             <tr>
-                                <td><t t-esc="listing.provider_id.name"/></td>
-                                <td><t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/> / <t t-esc="listing.uom"/></td>
-                                <td><t t-esc="listing.quantity"/></td>
-                                <td><t t-esc="listing.quality_grade or '-'"/></td>
-                                <td><t t-esc="listing.state_province.name or '-'"/></td>
+                                <td><t t-out="listing.provider_id.name"/></td>
+                                <td><t t-out="listing.price_per_unit"/> <t t-out="listing.currency_id.symbol"/> / <t t-out="listing.uom"/></td>
+                                <td><t t-out="listing.quantity"/></td>
+                                <td><t t-out="listing.quality_grade or '-'"/></td>
+                                <td><t t-out="listing.state_province.name or '-'"/></td>
                                 <td>
                                     <a t-att-href="'/exchange/listing/%s' % listing.id" class="btn btn-sm btn-primary">أبدِ اهتمامك</a>
                                 </td>
@@ -104,16 +104,16 @@
     <template id="exchange_listing_detail_template" name="Crop Listing Detail">
         <t t-call="website.layout">
             <div id="wrap" class="container py-4" dir="rtl">
-                <a t-att-href="'/exchange/crop/%s' % listing.crop_id.id" class="btn btn-link mb-3">&#8592; رجوع لعروض <t t-esc="listing.crop_id.name"/></a>
+                <a t-att-href="'/exchange/crop/%s' % listing.crop_id.id" class="btn btn-link mb-3">&#8592; رجوع لعروض <t t-out="listing.crop_id.name"/></a>
                 <div class="row">
                     <div class="col-md-6">
-                        <h2><t t-esc="listing.crop_id.name"/> — <t t-esc="listing.provider_id.name"/></h2>
+                        <h2><t t-out="listing.crop_id.name"/> — <t t-out="listing.provider_id.name"/></h2>
                         <ul class="list-unstyled">
-                            <li>الكمية: <t t-esc="listing.quantity"/> <t t-esc="listing.uom"/></li>
-                            <li>السعر: <t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/> لكل وحدة</li>
-                            <li t-if="listing.quality_grade">الجودة: <t t-esc="listing.quality_grade"/></li>
-                            <li>الولاية: <t t-esc="listing.state_province.name"/></li>
-                            <li t-if="listing.valid_until">العرض ساري حتى: <t t-esc="listing.valid_until"/></li>
+                            <li>الكمية: <t t-out="listing.quantity"/> <t t-out="listing.uom"/></li>
+                            <li>السعر: <t t-out="listing.price_per_unit"/> <t t-out="listing.currency_id.symbol"/> لكل وحدة</li>
+                            <li t-if="listing.quality_grade">الجودة: <t t-out="listing.quality_grade"/></li>
+                            <li>الولاية: <t t-out="listing.state_province.name"/></li>
+                            <li t-if="listing.valid_until">العرض ساري حتى: <t t-out="listing.valid_until"/></li>
                         </ul>
                         <p class="text-muted small">
                             ملاحظة: بيانات تواصل التاجر غير معروضة مباشرة. أرسل طلب اهتمام وستتولى إدارة المنصة التواصل وربطكما.
@@ -123,7 +123,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title mb-3">أبدِ اهتمامك بهذا العرض</h5>
-                                <p t-if="error" class="text-danger" t-esc="error"/>
+                                <p t-if="error" class="text-danger" t-out="error"/>
                                 <form t-att-action="'/exchange/listing/%s/interest' % listing.id" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <div class="mb-2">
@@ -190,7 +190,7 @@
     <template id="my_listings_template" name="My Crops &amp; Prices">
         <t t-call="website.layout">
             <div id="wrap" class="container py-4" dir="rtl">
-                <h2 class="mb-4">محاصيلي وأسعاري — <t t-esc="provider.name"/></h2>
+                <h2 class="mb-4">محاصيلي وأسعاري — <t t-out="provider.name"/></h2>
 
                 <table class="table table-hover align-middle mb-5">
                     <thead class="table-light">
@@ -207,11 +207,11 @@
                     <tbody>
                         <t t-foreach="listings" t-as="listing">
                             <tr>
-                                <td><t t-esc="listing.crop_id.name"/></td>
-                                <td><t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/> / <t t-esc="listing.uom"/></td>
-                                <td><t t-esc="listing.quantity"/></td>
-                                <td><t t-esc="listing.quality_grade or '-'"/></td>
-                                <td><t t-esc="listing.state_province.name or '-'"/></td>
+                                <td><t t-out="listing.crop_id.name"/></td>
+                                <td><t t-out="listing.price_per_unit"/> <t t-out="listing.currency_id.symbol"/> / <t t-out="listing.uom"/></td>
+                                <td><t t-out="listing.quantity"/></td>
+                                <td><t t-out="listing.quality_grade or '-'"/></td>
+                                <td><t t-out="listing.state_province.name or '-'"/></td>
                                 <td>
                                     <span t-if="listing.state == 'available'" class="badge bg-success">متاح</span>
                                     <span t-if="listing.state == 'reserved'" class="badge bg-warning">محجوز</span>
@@ -247,7 +247,7 @@
                                 <label class="form-label">المحصول</label>
                                 <select name="crop_id" class="form-select" required="1">
                                     <t t-foreach="crops" t-as="crop">
-                                        <option t-att-value="crop.id"><t t-esc="crop.name"/></option>
+                                        <option t-att-value="crop.id"><t t-out="crop.name"/></option>
                                     </t>
                                 </select>
                             </div>
@@ -267,7 +267,7 @@
                                 <label class="form-label">الولاية</label>
                                 <select name="state_province" class="form-select" required="1">
                                     <t t-foreach="states" t-as="st">
-                                        <option t-att-value="st.id"><t t-esc="st.name"/></option>
+                                        <option t-att-value="st.id"><t t-out="st.name"/></option>
                                     </t>
                                 </select>
                             </div>
@@ -284,7 +284,7 @@
         <t t-call="website.layout">
             <div id="wrap" class="container py-4" dir="rtl" style="max-width: 640px;">
                 <h2 class="mb-3">تسجيل كتاجر / مصدّر</h2>
-                <p t-if="error" class="text-danger" t-esc="error"/>
+                <p t-if="error" class="text-danger" t-out="error"/>
                 <form action="/exchange/register/submit" method="post">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="mb-2">
