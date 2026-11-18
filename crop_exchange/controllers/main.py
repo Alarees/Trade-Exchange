@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
+
 from odoo import http
 from odoo.http import request
 
@@ -15,23 +17,24 @@ class CropExchangeController(http.Controller):
     @http.route(["/exchange"], type="http", auth="public", website=True, sitemap=True)
     def exchange_board(self, **kw):
         Listing = request.env["crop.listing"].sudo()
-        grouped = Listing.read_group(
-            [("state", "=", "available")],
-            ["crop_id"],
-            ["price_per_unit:avg", "__count"],
-        )
-        board_rows = []
-        for g in grouped:
-            crop = request.env["crop.product"].sudo().browse(g["crop_id"][0]) if g["crop_id"] else False
-            if not crop:
-                continue
-            board_rows.append(
-                {
-                    "crop": crop,
-                    "avg_price": g["price_per_unit"],
-                    "offer_count": g["__count"],
-                }
-            )
+        listings = Listing.search([("state", "=", "available")])
+
+        totals = defaultdict(lambda: {"crop": False, "sum": 0.0, "count": 0})
+        for listing in listings:
+            bucket = totals[listing.crop_id.id]
+            bucket["crop"] = listing.crop_id
+            bucket["sum"] += listing.price_per_unit
+            bucket["count"] += 1
+
+        board_rows = [
+            {
+                "crop": data["crop"],
+                "avg_price": data["sum"] / data["count"],
+                "offer_count": data["count"],
+            }
+            for data in totals.values()
+            if data["count"]
+        ]
         board_rows.sort(key=lambda r: r["crop"].name or "")
 
         return request.render(
@@ -124,3 +127,69 @@ class CropExchangeController(http.Controller):
             }
         )
         return request.render("crop_exchange.provider_register_thankyou_template", {})
+
+    # ---------- Provider self-service: manage own crops & prices ----------
+    # A provider's login only has the Provider/portal group, so they never
+    # see the backend menus/views - they need a dedicated logged-in page
+    # under /exchange to add and manage their own crop.listing records.
+    def _get_current_provider(self):
+        return request.env["crop.provider"].sudo().search(
+            [("user_id", "=", request.env.user.id)], limit=1
+        )
+
+    @http.route(["/exchange/my"], type="http", auth="user", website=True)
+    def my_listings(self, **kw):
+        provider = self._get_current_provider()
+        if not provider:
+            return request.render("crop_exchange.my_listings_not_provider_template", {})
+        if provider.state != "approved":
+            return request.render(
+                "crop_exchange.my_listings_pending_template", {"provider": provider}
+            )
+        crops = request.env["crop.product"].sudo().search([])
+        states = request.env["res.country.state"].sudo().search([("country_id.code", "=", "SD")])
+        return request.render(
+            "crop_exchange.my_listings_template",
+            {"provider": provider, "listings": provider.listing_ids, "crops": crops, "states": states},
+        )
+
+    @http.route(["/exchange/my/add"], type="http", auth="user", website=True, methods=["POST"], csrf=True)
+    def my_listings_add(self, **post):
+        provider = self._get_current_provider()
+        if not provider or provider.state != "approved":
+            return request.not_found()
+
+        crop_id = int(post.get("crop_id") or 0)
+        state_id = int(post.get("state_province") or 0)
+        if not crop_id or not state_id or not post.get("price_per_unit"):
+            return request.redirect("/exchange/my")
+
+        request.env["crop.listing"].sudo().create(
+            {
+                "provider_id": provider.id,
+                "crop_id": crop_id,
+                "price_per_unit": float(post.get("price_per_unit")),
+                "quantity": float(post.get("quantity") or 1.0),
+                "quality_grade": post.get("quality_grade"),
+                "state_province": state_id,
+            }
+        )
+        return request.redirect("/exchange/my")
+
+    @http.route(["/exchange/my/<int:listing_id>/toggle"], type="http", auth="user", website=True, methods=["POST"], csrf=True)
+    def my_listings_toggle(self, listing_id, **post):
+        provider = self._get_current_provider()
+        listing = request.env["crop.listing"].sudo().browse(listing_id)
+        if not provider or listing.provider_id.id != provider.id:
+            return request.not_found()
+        listing.state = "available" if listing.state == "reserved" else "reserved"
+        return request.redirect("/exchange/my")
+
+    @http.route(["/exchange/my/<int:listing_id>/delete"], type="http", auth="user", website=True, methods=["POST"], csrf=True)
+    def my_listings_delete(self, listing_id, **post):
+        provider = self._get_current_provider()
+        listing = request.env["crop.listing"].sudo().browse(listing_id)
+        if not provider or listing.provider_id.id != provider.id:
+            return request.not_found()
+        listing.unlink()
+        return request.redirect("/exchange/my")

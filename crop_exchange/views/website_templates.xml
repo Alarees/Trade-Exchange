@@ -9,6 +9,16 @@
         <field name="sequence">40</field>
     </record>
 
+    <!-- Provider self-service: a provider's login only has the portal
+         group and never sees backend menus, so they reach their own
+         crop/price list through this logged-in page instead. -->
+    <record id="website_menu_exchange_my" model="website.menu">
+        <field name="name">لوحة التاجر</field>
+        <field name="url">/exchange/my</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence">41</field>
+    </record>
+
     <!-- ===================== Public exchange board (stock-exchange style table) ===================== -->
     <template id="exchange_board_template" name="Crop Exchange Board">
         <t t-call="website.layout">
@@ -148,6 +158,123 @@
                 <h2>تم إرسال طلبك بنجاح</h2>
                 <p class="text-muted">ستتواصل معك إدارة المنصة قريباً لربطك بالتاجر.</p>
                 <a href="/exchange" class="btn btn-primary">العودة إلى البورصة</a>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===================== Provider self-service: my crops &amp; prices ===================== -->
+    <template id="my_listings_not_provider_template" name="My Listings - Not a Provider">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-5 text-center" dir="rtl">
+                <h2>هذا الحساب غير مسجّل كتاجر/مصدّر</h2>
+                <p class="text-muted">إذا كنت تاجراً أو مصدّراً، سجّل أولاً ثم انتظر موافقة الإدارة.</p>
+                <a href="/exchange/register" class="btn btn-primary">سجّل كتاجر/مصدّر</a>
+            </div>
+        </t>
+    </template>
+
+    <template id="my_listings_pending_template" name="My Listings - Pending Approval">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-5 text-center" dir="rtl">
+                <h2>طلب تسجيلك قيد المراجعة</h2>
+                <p class="text-muted">
+                    حالة الطلب حالياً:
+                    <span t-if="provider.state == 'pending'">قيد المراجعة من الإدارة</span>
+                    <span t-if="provider.state == 'rejected'">مرفوض</span>
+                </p>
+                <a href="/exchange" class="btn btn-primary">العودة إلى البورصة</a>
+            </div>
+        </t>
+    </template>
+
+    <template id="my_listings_template" name="My Crops &amp; Prices">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-4" dir="rtl">
+                <h2 class="mb-4">محاصيلي وأسعاري — <t t-esc="provider.name"/></h2>
+
+                <table class="table table-hover align-middle mb-5">
+                    <thead class="table-light">
+                        <tr>
+                            <th>المحصول</th>
+                            <th>السعر</th>
+                            <th>الكمية</th>
+                            <th>الجودة</th>
+                            <th>الولاية</th>
+                            <th>الحالة</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="listings" t-as="listing">
+                            <tr>
+                                <td><t t-esc="listing.crop_id.name"/></td>
+                                <td><t t-esc="listing.price_per_unit"/> <t t-esc="listing.currency_id.symbol"/> / <t t-esc="listing.uom"/></td>
+                                <td><t t-esc="listing.quantity"/></td>
+                                <td><t t-esc="listing.quality_grade or '-'"/></td>
+                                <td><t t-esc="listing.state_province.name or '-'"/></td>
+                                <td>
+                                    <span t-if="listing.state == 'available'" class="badge bg-success">متاح</span>
+                                    <span t-if="listing.state == 'reserved'" class="badge bg-warning">محجوز</span>
+                                    <span t-if="listing.state == 'expired'" class="badge bg-secondary">منتهي</span>
+                                </td>
+                                <td class="d-flex gap-1">
+                                    <form t-att-action="'/exchange/my/%s/toggle' % listing.id" method="post">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <button t-if="listing.state != 'expired'" type="submit" class="btn btn-sm btn-outline-secondary">
+                                            <span t-if="listing.state == 'available'">تحديد كمحجوز</span>
+                                            <span t-if="listing.state == 'reserved'">إعادة كمتاح</span>
+                                        </button>
+                                    </form>
+                                    <form t-att-action="'/exchange/my/%s/delete' % listing.id" method="post">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr t-if="not listings">
+                            <td colspan="7" class="text-muted">لم تضف أي محصول بعد.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card" style="max-width: 640px;">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">إضافة محصول جديد بسعرك</h5>
+                        <form action="/exchange/my/add" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <div class="mb-2">
+                                <label class="form-label">المحصول</label>
+                                <select name="crop_id" class="form-select" required="1">
+                                    <t t-foreach="crops" t-as="crop">
+                                        <option t-att-value="crop.id"><t t-esc="crop.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">السعر لكل وحدة</label>
+                                <input type="number" step="0.01" name="price_per_unit" class="form-control" required="1"/>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">الكمية (اختياري)</label>
+                                <input type="number" step="0.01" name="quantity" class="form-control" value="1"/>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">الجودة / المواصفة</label>
+                                <input type="text" name="quality_grade" class="form-control"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">الولاية</label>
+                                <select name="state_province" class="form-select" required="1">
+                                    <t t-foreach="states" t-as="st">
+                                        <option t-att-value="st.id"><t t-esc="st.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">إضافة</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </t>
     </template>
